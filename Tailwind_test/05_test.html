@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>실습</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<!-- 
+    > content : 요소의 콘텐츠가 표시되는 영역
+    > padding : content 영역과 border 사이의 안쪽 여백
+    > border : padding 영역과 margin 사이의 테두리
+    > margin : border를 기준으로 다른 요소와의 바깥쪽 여백
+-->
+
+<body>
+    <!-- 1. margin : m, mt, mb, mr, ml -->
+    <!-- 2. padding : p, pt, pb, pr, pl -->
+    <!-- 3. font-weight -->
+    <!-- 4. text-color -->
+    <div class="text-base text-red-500">hello world</div>
+    <div class="text-lg">text-lg 사이즈</div>
+    <div class="text-2xl">text-2xl 사이즈</div>
+
+    <div class="bg-blue-100">
+        <div class="text-lg p-3">p(안쪽으로 패딩)-3</div> 
+        <div class="text-lg pt-3">pt(top으로 패딩)-3</div> 
+        <div class="text-lg pb-3">pb(bottom으로 패딩)-3</div> 
+        <div class="text-lg pr-3">pr(오른쪽 패딩)-3</div> 
+        <div class="text-lg pl-3">pl(왼쪽 패딩)-3</div> 
+    </div>
+    
+    <div class="bg-red-100">
+        <div class="text-lg m-3">m-3</div> 
+        <div class="text-lg mt-3">mt-3</div> 
+        <div class="text-lg mb-3">mb-3</div> 
+        <div class="text-lg mr-3">mr-3</div> 
+        <div class="text-lg ml-3">ml-3</div> 
+
+        <br>
+        <div class="text-lg my-3">my - 마진 통합해서 y축에 주겠다</div> 
+        <div class="text-lg">이 친구는 마진 통합 때문에 마진 안 줘도 적용됨</div>
+    </div>
+
+    <!-- 5. list-style-type -->
+    <div class="p-5 bg-green-100">
+        <ul class ='list-disc'> 
+            <!-- list-disc를 주면 목록 앞에 점이 생김!! -->
+            <li>Lorem ipsum dolor sit amet consectetur adipisicing elit. Maxime, alias sit voluptatem laborum nemo at delectus nostrum, nulla voluptate cupiditate iusto aliquam maiores odit eligendi inventore eaque? Dignissimos, eveniet id.</li>
+            <!-- 긴 문장이 들어와도 간격이 맞춰지는 것 확인 가능 -->
+            <li>list style type</li>
+            <li>list style type</li>
+            <li>list style type</li>
+            <li>list style type</li>
+        </ul>
+    </div>
+
+    <div class="p-5 bg-green-100">
+        <ul class ='list-decimal'> 
+            <!-- list-decimal 주면 순서 생성!! -->
+            <li>Lorem ipsum dolor sit amet consectetur adipisicing elit. Maxime, alias sit voluptatem laborum nemo at delectus nostrum, nulla voluptate cupiditate iusto aliquam maiores odit eligendi inventore eaque? Dignissimos, eveniet id.</li>
+            <!-- 긴 문장이 들어와도 간격이 맞춰지는 것 확인 가능 -->
+            <li>list style type</li>
+            <li>list style type</li>
+            <li>list style type</li>
+            <li>list style type</li>
+        </ul>
+    </div>
+
+    <!-- 6. rounded -->
+    <div class='w-32 h-32 bg-red-400'></div> <br>
+    <div class='w-32 h-32 bg-red-400 rounded'>rounded</div> <br>
+    <div class='w-32 h-32 bg-red-400 rounded-2xl'>rounded-2xl</div> <br>
+    <div class='w-32 h-32 bg-red-400 rounded-full'>rounded-full</div> 
+
+    <!-- 7. 지정 색상 사용법 -->
+    <div class="text-[17px]">text-[17px]</div>
+    <div class="mt-[17px]">mt-[17px]</div>
+    <div class="bg-[#4267B2] text-white">bg-[#4267B2] text-white</div>
+
+</body>
+</html>

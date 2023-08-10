@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>sizing</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- https://tailwindcss.com/docs/installation/play-cdn 에서 긁어온 script -->
+</head> 
+<body>
+    <h1>hello world</h1>
+    <h2>hello world</h2>
+    <h3>hello world</h3>
+    <h4>hello world</h4>
+    <h5>hello world</h5>
+    <h6>hello world</h6>
+    <div class="space-y-6 bg-blue-300"> 
+        <!-- 
+            space-y-'숫자' : 각 요소의 간격
+            bg-color-'숫자' : 배경색 설정, 숫자가 클수록 색이 진해짐
+            shadow : 그림자
+            rounded : 모서리 라운드
+        -->
+        <div class="w-96 bg-white shadow rounded">
+            <!-- 
+                w-96 : 0.25rem*96 
+                https://tailwindcss.com/docs/width
+            -->
+            w-96
+        </div>
+        <div class="w-80 bg-white shadow rounded">
+            w-80
+        </div>
+        <div class="w-72 bg-white shadow rounded">
+            w-72
+        </div>
+        <div class="w-64 bg-white shadow rounded">
+            w-64
+        </div>
+        <div class="w-60 bg-white shadow rounded">
+            w-60
+        </div>
+        <div class="w-56 bg-white shadow rounded">
+            w-56
+        </div>
+        <div class="w-52 bg-white shadow rounded">
+            w-52
+        </div>
+        <div class="w-48 bg-white shadow rounded">
+            w-48
+        </div>
+        <!-- docs 들어가면 다양한 값들 확인 가능 -->
+        <div class="w-2/4 bg-white shadow rounded">
+            w-48
+        </div>
+    </div>      
+</body>
+</html>

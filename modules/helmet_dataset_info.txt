@@ -1,0 +1,66 @@
+*** 필요 패키지 ***
+BeautifulSoup, OpenCV(cv2), PyTorch, Albumentations 패키지
+
+
+*** 사용 방법 ***
+from helmet_dataset import *
+
+
+
+----- bounding box 라벨링이 <태그> 형식으로 되어있는 경우 데이터 처리 메소드 -----
+1. generate_box(obj) 
+    annotations.xml에서 바운딩 박스 좌표들을 가져오는 함수 
+    [parameters]
+        obj : annotations.xml 파일에서 읽은 object 
+    [return]
+        [xmin, ymin, xmax, ymax]
+
+
+2. generate_label(obj)
+    annotations.xml에서 바운딩 박스 라벨들을 반환하는 함수
+    [parameters]
+        obj : annotations.xml 파일에서 읽은 object 
+    [return]
+        helmet인 경우 return 1
+        head인 경우 return 2
+        그 외 return 0
+
+
+3. generate_target(file)
+    generate_box, generate_label 함수를 이용해 받은 box, label 정보를
+    target dictionary 형태로 반환하는 함수 
+    [parameters]
+        file : annotation.xml 파일을 입력
+    [return]
+        target = {'boxes': [...], 'labels': [...]} 
+
+
+4. collate_fn(batch)
+    # 배치의 이미지 및 어노테이션을 모으는 함수  
+    # 데이터 로더에 의해 호출되어 배치를 수집하는 동안 사용될 예정인 함수
+    # 데이터 로더를 사용하여 커스텀 데이터셋에서 배치를 생성하고 싶을 때 사용됨
+
+
+
+-------------------------- 데이터셋, 트랜스포머 -------------------------
+5. AlbumentationsDataset(Dataset)
+    [parameters]
+        path : image 파일 경로
+        ann_path : annotations 파일 경로
+        transform : 데이터 전처리용 transformer
+    [method]
+        len : images 개수 반환
+        getitem : index를 받아 해당 이미지 및 annotation 반환
+
+
+6. bbox_transform
+    bbox와 함께 이미지를 transform하는 transformer    
+    1) resize(224, 224)
+    2) normalize
+    3) ToTensor
+    4) BboxParams 전달
+
+
+
+
+

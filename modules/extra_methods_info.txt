@@ -1,0 +1,40 @@
+*** 필요 패키지 ***
+Matplotlib, Torch 패키지
+
+*** 사용 방법 ***
+from extra_methods import *
+from extra_methods import plot_image_from_output, EarlyStopping, make_prediction
+
+
+
+--------------------------- 시각화 관련 메소드 ---------------------------
+1. plot_image_from_output(img, annotation, ax)
+    모델 통과 후 출력값으로 bounding box를 그린 이미지 출력 메소드
+    [parameters]
+        img : 모델 반환값 이미지
+        annotation : 모델 반환값 bounding box 좌표 정보
+        ax : 
+    [return] 
+
+
+
+--------------------------- 조기 종료 클래스 ---------------------------
+2. EarlyStopping()
+    [parameters]
+        patience : 기다릴 에폭 수(default = 5)
+	save_path : 저장 경로 (default = None)
+	target_loss : 원하는 loss값 (default = 100)
+	model_name : 사용 모델 이름 (default = 'retina')
+    [사용법]
+	early_stopping = EarlyStopping(save_path='저장할 경로', target_loss=원하는 loss값)
+
+
+
+--------------------------- 예측 메소드 ---------------------------
+3. make_prediction(model, img, threshold)
+    [parameters]
+        model : 모델 
+        img : 추론할 이미지
+        threshold : bounding box로 판별할 임계치
+    [return]
+        preds : 예측값 

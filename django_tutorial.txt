@@ -1,0 +1,810 @@
+# 가상환경 만들자
+(1)> cd 프로젝트폴더
+(2)> py -3.11 -m venv .venv 
+(3)> .venv\Scripts\activate 
+(4)>(.venv) python -m pip install --upgrade pip 
+(5)>(.venv) pip install django
+(6)>(.venv) pip install django-cors-headers
+(7)>(.venv) pip install djangorestframework
+
+# 현재 경로 확인: pwd
+
+
+###################################################################################
+
+1. project 폴더 생성
+   mkdir 프로젝트명
+
+
+<프로젝트 생성>
+2. django-admin startproject config . 
+
+
+<앱 생성>
+3. python manage.py startapp todo
+4. python manage.py startapp user
+
+
+<config - 환경 설정>
+5. settings.py 들어가서 수정
+  - import os
+  - INSTALLED_APPS : ['todo', 'user'] 추가
+  - project 폴더에 'templates' 폴더 생성 (app별 폴더 생성)
+    "DIRS": ['templates'] 추가 
+  - project 폴더에 'static' 폴더 생성 > css, js 폴더 생성
+    STATIC_URL 밑에 아래 코드 추가
+```
+STATIC_PATH = os.path.join(
+    BASE_DIR, "static"
+)  # concatena a pasta static a variavel instanciada base_dir que aponta para a raiz do projeto
+STATICFILES_DIRS = (STATIC_PATH,)
+```
+
+6. config/urls.py 들어가서 수정
+  - import include (path 뒤에)
+  - path('', include('todo.urls'))
+  - path('user/', include('user.urls'))
+
+
+<app 수정>
+- templates 각 폴더(todo, user)에 'home.html' 생성
+- !+tab 하고 body에 {{msg}} 추가
+
+7. todo/user app에 각각 urls.py 파일 생성
+from django.urls import path
+from .views import home, update
+
+urlpatterns = [
+    path('', home, name='user-home'),
+    path('update/<str:msg>', update, name='update-home')
+]
+
+8. todo/user app views.py 파일 수정
+-------------------------<todo>-----------------------------
+def home(request):
+    context = {'msg':'여긴 todo 임당'}
+    return render(request, 'todo/home.html', context)
+
+def update(request, msg):
+    context = {'msg':msg}
+    return render(request, 'todo/home.html', context)
+
+--------------------------<user>----------------------------- 
+def home(request):
+    context = {'msg':'user-home'}
+    return render(request, 'user/home.html', context)
+
+def update(request, msg):
+    context = {'msg':msg}
+    return render(request, 'user/home.html', context)
+-------------------------------------------------------------
+
+9. 페이지를 띄워보자 (중간 확인)
+  python manage.py makemigrations
+  python manage.py migrate
+  python manage.py runserver
+  나가고 싶다면 ctrl + c 하면 됨
+
+<css, js>
+10. static/css 안에 index.css 파일 생성
+    css: 꾸미기
+    ```
+    p{
+    color:coral;
+    }
+
+    h{
+    color:cyan; 
+    }
+    ```
+
+11. static/js 안에 index.js 파일 생성
+    js: 동작 주기
+
+    ```
+    function index(){
+    alert('알람! 알람!');
+    }
+
+    index();
+    ```
+    
+- 효과를 원하는 html 파일 <title> 위에 추가
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/index.css' %}">
+
+- {{msg}}를 <p>로 감싸기
+
+- <body> 안, 맨 밑에 넣기
+<script type="text/javascript" src="{% static 'js/index.js' %}"></script>
+
+
+####################################################################################
+<sql에 입력하기>
+```
+# 데이터베이스 생성 
+create database django_db;
+
+# 사용자 계정 생성
+use mysql;
+
+create user 'django_root'@localhost identified by 'django_root1!';  # 계정 by 비번
+select * from user;
+
+# 사용자 권한 부여 
+grant all privileges on django_db.* to 'django_root'@localhost;
+flush privileges; # 새로운(수정된) 권한 적용 
+```
+
+
+[todo\models.py 에 복붙하기]
+```
+from django.db import models
+from django.contrib.auth.models import User
+
+# Create your models here.
+class todo(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    todo_name = models.CharField(max_length=1000)
+    status = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.todo_name
+```
+
+
+[설치하기]
+```
+pip install mysqlclient
+```
+# 위에 것이 설치되어 있어야만 커넥션 객체가 생길 수 있음.
+
+
+<sql 계정만들고 이것저것 연결하기>
+
+
+[테이블 만들기]
+```
+python manage.py makemigrations
+```
+
+
+[확인하기]
+```
+python manage.py migrate
+```
+
+
+[config\settings.py의 DATABASES부분에 덮어씌우기]
+```
+#pip install mysqlclient
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.mysql",
+        "NAME": "django_db", # 데이터베이스 이름 
+        "USER": "django_root", 
+        "PASSWORD": "django_root1!",
+        "HOST": "localhost",
+        "PORT": "3306"
+    }
+}
+```
+# 이제 mysql과 연결할 수 있는 환경과 커넥션 세팅 완료됨
+
+
+<sql에서 refresh한 후 table클릭하면 변화 확인 가능>
+
+
+[터미널에서 아래 입력하기]
+```
+python manage.py createsuperuser
+```
+Username (leave blank to use 'playdata'): root
+Email address: root@test.com
+Password:
+Password (again):
+
+# password에 root입력하고 enter 치기
+
+Bypass password validation and create user anyway? [y/N]: y
+
+
+<sql에서 확인하기>
+Django_db\Tables\todo_todo
+# todo_todo: 앱이름_class이름
+
+
+[터미널에서]
+```
+  python manage.py makemigrations
+  python manage.py migrate
+  python manage.py runserver
+```
+
+
+(홈페이지로 들어가서)
+/admin/
+# 전에 입력했던 아이디랑 패스워드로 로그인해보기
+# Users 클릭하기
+# add하기
+
+
+<sql에서>
+# refresh한 후 django_db\tables\auth_user 변화 확인하기
+
+
+[user\views.py에 추가하기]
+```
+from django.shortcuts import render, redirect
+from django.contrib.auth.models import User
+from django.contrib.auth import authenticate, login, logout
+from django.contrib import messages
+
+# Create your views here.
+def home(request):
+    context = {'msg':'이 페이지는 사용자 페이지입니다.'}
+    return render(request, 'user/home.html', context)
+
+def update(request, msg):
+    context = {'msg':msg}
+    return render(request, 'user/home.html', context)
+
+def user_login(request):
+
+    # 로그인 한 유저가 접속했을 때
+    if request.user.is_authenticated:
+        return redirect('user-home')
+    
+    # 로그인 요청을 했을 때
+    elif request.method == "POST":
+        username = request.POST.get('uname')  # templates\user\login.html 파일과 비교하면서 보기
+        pwd = request.POST.get('pass')
+
+        validate_user = authenticate(username=username, password=pwd)
+        # 로그인에 성공했을 경우
+        if validate_user is not None:
+            login(request, validate_user)
+            return redirect('user-home')
+            
+        # 로그인에 실패했을 경우
+        else:
+            messages.error(request, 'Error, Wrong user details or user does not exist')
+            return redirect('user-login')
+        
+    # 로그인 화면에 접속했을 때    
+    else:
+        return render(request, 'user/login.html', {})
+
+def user_register(request):
+
+    # 로그인 한 유저가 접속했을 때
+    if request.user.is_authenticated:
+        return redirect('user-home')
+
+    # 신규 등록을 요청했을 때
+    elif request.method == 'POST':
+        username = request.POST.get('username')
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+
+        new_user = User.objects.create_user(
+            username=username, email=email, password=password
+        )
+        new_user.save()
+        messages.success(request, 'User successfully created, ligin now')
+        return redirect('user-login')
+
+    # 신규 등록을 위해 화면에 접속했을 때
+    else:
+        return render(request, 'user/register.html', {})
+
+def user_logout(request):
+    logout(request)
+    return redirect('user-login')
+```
+
+
+[static/css 안에]
+# 강사님 자료 1-1의 css\login.css 복붙하기
+# 강사님 자료 1-1의 css\register.css 복붙하기
+
+
+[templates/user 안에]
+# 강사님 자료 1-1dml templates\user\login.html 복붙하기
+# 강사님 자료 1-1dml templates\user\register.html 복붙하기
+
+
+[user\urls.py에 추가하기]
+```
+from .views import home, update, user_login, user_register, user_logout
+
+path('login/', user_login, name='user-login'),
+path('register/', user_register, name='user-register'),
+path('logout/', user_logout, name='user-logout'),
+```
+
+
+[templates\user\login.html]
+
+<!-- <div class="text">
+        <h3>Don't have an account? <a href="{% url 'user-register' %}">Register now</a></h3>
+    </div>
+    <div class="text">
+        <h3>Forgot Password? <a href="{% url 'user-login' %}">Reset</a></h3>
+    </div> -->
+# 윗 부분 삭제하기 ->  확인을 위해서임. 나중에 다시 추가할 것임.
+
+
+#######################################################################################################
+
+
+[앱 생성]
+python manage.py startapp todolist
+
+
+[config/settings.py 안에 추가]
+```
+INSTALLED_APPS = ['todolist']
+```
+
+
+[config/urls.py 안에 추가]
+```
+path("todolist/", include('todolist.urls'))
+```
+
+
+[todolist 안에]
+urls.py 파일 생성
+```
+from django.urls import path, include
+from .views import todolist_page
+
+urlpatterns = [
+    path("", todolist_page, name = 'todolist-page')
+]
+```
+
+
+[templates/todolist 안에]
+# 강사님 자료 1-1 todo.html 복붙
+
+# 아래 코드 잠시 삭제함. 나중에 다시 추가함.
+
+```
+                    <td>
+                        <a href="{% url 'delete-task' i.todo_name %}"><button type="submit" class="btn btn-danger">Delete</button></a>
+                        <a href="{% url 'update-task' i.todo_name %}"><button type="submit" class="btn btn-success ms-1">Finished</button></a>
+                    </td>
+```
+
+
+[todolist/views 안에]
+```
+from django.shortcuts import render
+
+# Create your views here.
+def todolist_page(request):
+    context = {}
+    return render(request, 'todolist/todo.html', context)
+```
+
+
+[todolist/models.py 안에서 (todo table 만들기)]
+```
+from django.db import models
+from django.contrib.auth.models import User
+
+# Create your models here.
+class todolist(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)  # 상속
+    todolist_name = models.CharField(max_length=1000)  # 도메인 char(1000)
+    status = models.BooleanField(default=False) 
+
+    def __str__(self):
+        return self.todolist_name
+```
+
+
+[todolist/admin.py 안에]
+```
+from django.contrib import admin
+from .models import todolist
+
+# Register your models here.
+admin.site.register(todolist)  # 등록
+```
+
+
+[터미널에서]
+```
+  python manage.py makemigrations
+  python manage.py migrate
+  python manage.py runserver
+```
+
+
+<sql에서 Databases/Tables/todolist_todo>
+# Properties 클릭해서 컬럼 확인
+
+
+[todolist/views.py 안에 수정]
+```
+from django.shortcuts import render
+from .models import todolist
+
+# Create your views here.
+def todolist_page(request):
+    todo_llist = todolist.objects.filter(user=request.user)
+    context = {
+        'todos': todo_list    # 'todos'는 html에 정의되어있는 key다. 
+    }
+    return render(request, 'todolist/todo.html', context)
+```
+
+
+[tempaltes/todolist/todo.html 안에 수정]
+# todo_name -> todolist_name 으로 변경
+```
+<tbody>
+    {% for i in todos %}
+    <tr>
+    <td>{{i.todolist_name}}</td>
+```
+
+
+[todolist/views.py 안에 추가]
+```
+# Create your views here.
+def todolist_page(request):
+
+    # todolist 추가 요청 받을 경우
+    if request.method == 'POST':
+        taskname = request.POST.get('task')
+        new_todo = todolist(user=request.user, todolist_name=taskname)
+        new_todo.save()
+```
+
+
+[todolist/views.py 안에 수정]
+# 로그인 안했을 때 todolist 페이지로 가면 로그인 페이지로 연결하기
+
+```
+from django.shortcuts import render, redirect
+from .models import todolist
+
+# Create your views here.
+def todolist_page(request):
+
+    # 로그인이 안되어있는 경우
+    if not request.user.username:
+        return redirect('user-login')
+
+    # todolist 추가 요청 받을 경우
+    elif request.method == 'POST':
+        taskname = request.POST.get('task')
+        new_todo = todolist(user=request.user, todolist_name=taskname)
+        new_todo.save()
+
+    todo_list = todolist.objects.filter(user=request.user)
+    context = {
+        'todos': todo_list    # 'todos'는 html에 정의되어있는 key다. 
+    }
+
+    return render(request, 'todolist/todo.html', context)
+```
+
+
+[todolist/views.py 안에 수정]
+# 로그인 안됐을 경우 해결할 수 있는 또 다른 방법
+
+```
+from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
+from .models import todolist
+
+# Create your views here.
+@login_required(login_url='/user/login/')
+def todolist_page(request):
+
+    # # 로그인이 안되어있는 경우
+    # if not request.user.username:
+    #     return redirect('user-login')
+
+    # todolist 추가 요청 받을 경우
+    if request.method == 'POST':
+        taskname = request.POST.get('task')
+        new_todo = todolist(user=request.user, todolist_name=taskname)
+        new_todo.save()
+
+    todo_list = todolist.objects.filter(user=request.user)
+    context = {
+        'todos': todo_list    # 'todos'는 html에 정의되어있는 key다. 
+    }
+
+    return render(request, 'todolist/todo.html', context)
+```
+
+
+[templates/todolist/todo.html 안에]
+# 주석 처리했던 action 부분 살리고
+# 삭제했던 <td> tag 살리기
+# i.todo_name -> i.todolist_name 변경하기
+
+```
+<a href="{% url 'delete-task' i.todolist_name %}">
+<a href="{% url 'update-task' i.todolist_name %}">
+```
+
+
+[todolist/urls.py 안에 추가]
+```
+from django.urls import path, include
+from .views import todolist_page, delete_task, update_task
+
+urlpatterns = [
+    path("", todolist_page, name = 'todolist-page'),
+    path("update-task/<str:todolistname>", delete_task, name = 'delete-task'),
+    path("update-task/<str:todolistname>", update_task, name = 'update-task'),
+]
+```
+
+
+[todolist/views.py 안에 추가]
+# delete 함수, update 함수 추가하기
+
+```
+from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
+from .models import todolist
+
+
+@login_required(login_url='/user/login/')
+def delete_task(request, todolistname):
+    one_todo = todolist.objects.get(user=request.user, todolist_name=todolistname)
+    one_todo.delete()
+    return redirect('todolist-page')
+
+
+@login_required(login_url='/user/login/')
+def update_task(request, todolistname):
+    one_todo = todolist.objects.get(user=request.user, todolist_name=todolistname)
+    one_todo.status = True
+    one_todo.save()
+    return redirect('todolist-page')
+```
+
+#######################################################################################################
+
+
+[터미널에서]
+```
+  python manage.py makemigrations
+  python manage.py migrate
+  python manage.py runserver
+```
+
+
+[todolist/models.py 에서 수정]
+```
+from django.db import models
+from django.contrib.auth.models import User
+
+# Create your models here.
+class todolist(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)  # 상속
+    todolist_name = models.CharField(max_length=1000)  # 도메인 char(1000)
+    description = models.TextField(null=True, blank=True)
+    status = models.BooleanField(default=False)
+    created = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.todolist_name
+
+    class Meta:
+        ordering = ['status', '-created']  # 완료된 것 기준으로 최신 등록 순으로 정렬
+        # ordering: 정렬
+        # -created: created 변수를 내림차순으로 정렬해줌
+```
+
+
+[todolist/forms.py 생성]
+```
+# 화면용 테이블이 필요하므로 여기서 만든다.
+# models.py를 바탕으로 표현될 예정이다. -> import models
+# froms.py: models.py의 내용을 화면으로 띄워주는 것. 저장하는 것과는 무관.
+
+from django import forms
+from .models import todolist
+
+class TodolistForm(forms.ModelForm):
+    class Meta:
+        model = todolist
+        fields = ['todolist_name', 'description', 'status']  # 보여줄 요소
+```
+
+
+[todolist/views.py 에서 추가]
+```
+from django.shortcuts import render, redirect
+# render: 화면 rendering, redirect: 특정 화면으로 지정하여 이동
+from django.contrib.auth.decorators import login_required
+from django.forms.models import model_to_dict
+
+from .models import todolist
+from .forms import TodolistForm
+
+
+# Create your views here.
+@login_required
+def task_list(request):
+    template_name = 'todoList/task_list.html' 
+    context = {}
+
+    search_input = request.GET.get('search-area') or ''
+    if search_input:
+        context['taskList'] = todolist.objects.filter(title__startswith=search_input)
+    else:
+        context['taskList'] = todolist.objects.filter(user=request.user)
+
+    context['search_input'] = search_input
+    context['cnt'] = todolist.objects.filter(complete=False).count()
+
+    return render(request, template_name, context)
+
+@login_required
+def task_detail(request, pk):
+    template_name = 'todoList/task_detail.html'
+    get_task = todolist.objects.get(id=pk)
+    context={
+        'form':TodolistForm(instance=get_task),
+        'task':get_task
+    }
+
+    return render(request, template_name, context) 
+
+@login_required
+def task_create(request):
+    if request.method == "POST":
+        form = TodolistForm(request.POST)
+        if form.is_valid():
+            task = form.save(commit=False)
+            task.user = request.user 
+            task.save()
+            return redirect('task-list')
+    else:
+        template_name = 'todoList/task_form.html'
+        context={'form':TodolistForm()}
+
+        return render(request, template_name, context) 
+
+@login_required
+def task_update(request, pk):
+    get_task = todolist.objects.get(id=pk)
+
+    if request.method == "POST":
+        form = TodolistForm(request.POST, instance=get_task)
+        if form.is_valid():
+            task = form.save(commit=False)
+            task.pk = pk
+            task.save()
+            return redirect('task-list')
+    else:
+        template_name = 'todoList/task_form.html'
+        context={
+            'form':TodolistForm(instance=get_task),
+            'task':get_task
+        }
+
+        return render(request, template_name, context) 
+
+@login_required
+def task_delete(request, pk):
+    get_task = todolist.objects.get(id=pk)
+    if request.method == "POST":
+        get_task.delete()
+        return redirect('task-list')
+    else:
+        template_name = 'todoList/task_delete.html'
+        context={
+            'form':TodolistForm(instance=get_task),
+            'task':get_task
+        }
+        return render(request, template_name, context)  
+```
+
+
+[todolist/urls.py 에서 추가]
+```
+from django.urls import path, include
+from .views import task_list, task_detail, task_create, task_update, task_delete
+
+urlpatterns = [
+    path('', task_list, name='task-list'),
+    path('task-create/', task_create, name='task-create'),
+    path('task-detail/<int:pk>', task_detail, name='task-detail'),
+    path('task-update/<int:pk>', task_update, name='task-update'),
+    path('task-delete/<int:pk>', task_delete, name='task-delete')
+]
+```
+
+
+[user/forms.py 생성]
+```
+from django import forms
+from django.contrib.auth.models import User 
+
+class UserForm(forms.ModelForm):
+    class Meta:
+        model = User  # 사용할 모델
+        fields = ['username', 'password']
+        widgets = {
+            'password': forms.PasswordInput(),
+        }
+```
+
+
+[user/views.py 에서 추가]
+```
+from django.shortcuts import render, redirect
+from django.contrib.auth.forms import UserCreationForm 
+from django.contrib.auth import authenticate, login
+from django.contrib import messages
+from .forms import UserForm
+
+# Create your views here.
+def user_login(request):
+    if request.user.is_authenticated:
+        return redirect("task-list")
+    elif request.method == 'POST':
+        username = request.POST.get("username")
+        pwd = request.POST.get("password")
+        validate_user = authenticate(username=username, password=pwd)
+        if validate_user is not None:
+            login(request, validate_user)
+            return redirect('task-list')
+        else:
+            messages.info(request, 'Try again! username or password is incorrect')
+            return redirect("login")
+
+    template_name = 'user/login.html' 
+    context={'form':UserForm()}
+    return render(request, template_name, context)  
+
+def user_register(request):
+    if request.user.is_authenticated:
+        return redirect("task-list")
+    elif request.method == "POST":
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('login') 
+        else:
+            messages.info(request, 'Try again!')
+            return redirect("register")
+    
+    template_name = 'user/register.html'
+    context={'form':UserCreationForm()}
+    return render(request, template_name, context)  
+```
+
+
+[user/urls.py 에서 추가]
+```
+from django.urls import path
+from django.contrib.auth.views import LogoutView
+
+from .views import user_login, user_register
+
+urlpatterns = [
+    path('login/', user_login, name='login'),
+    path('register/', user_register, name='register'),
+    path('logout/', LogoutView.as_view(next_page='login'), name='logout'),
+]
+```
+
+
+[]
+```
+
+```

@@ -6,14 +6,14 @@ from paddleocr import PaddleOCR
 # from modules import change_contrast
 
 
-url='http://172.30.1.60:8080/shot.jpg'
+url='http://192.168.0.174:8080/shot.jpg'
 ocr = PaddleOCR()
 
 
 while True:
     imgResp = urllib.request.urlopen(url)
     imgNp = np.array(bytearray(imgResp.read()), dtype=np.uint8)
-    img = cv2.imdecode(imgNp,-1)
+    img = cv2.imdecode(imgNp,-1)  # 뭐여
     
     # 이미지 사이즈 줄이기
     img = cv2.resize(img, (720, 486), interpolation=cv2.INTER_AREA)
